@@ -1,6 +1,6 @@
 import numpy as np
 import csv
-from skimage import color, exposure, transform
+# from skimage import color, exposure, transform
 
 # Constants, configure as appropriate
 EARTH_PHOTOS_DIRECTORY = "./WinEarthPhotosByKeyword/"
@@ -39,4 +39,5 @@ with open(EARTH_PHOTOS_DIRECTORY + 'tags.csv', 'r') as tags:
 	TOTAL_TAGS = len(sorted_tags)
 	print("Total unique tags: " + str(TOTAL_TAGS))
 
-	a = (ttl, TOTAL_TAGS, tag_dict, sorted_tags)
+	# A tuple in case we need it
+	data_tup = (ttl, TOTAL_TAGS, tag_dict, sorted_tags)
