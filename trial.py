@@ -1,5 +1,6 @@
 import numpy as np
 import csv
+from get_img_dict import get_img_dict
 # from skimage import color, exposure, transform
 
 # Constants, configure as appropriate
@@ -19,14 +20,6 @@ with open(EARTH_PHOTOS_DIRECTORY + 'tags.csv', 'r') as tags:
 					tag_dict[tag] = tag_dict[tag] + 1
 				except KeyError:
 					tag_dict[tag] = 1
-
-with open(EARTH_PHOTOS_DIRECTORY + 'tags.csv', 'r') as tags:
-	reader = csv.reader(tags, delimiter=',')
-	tag_dict = {}
-	img_dict = {}
-	for row in reader:
-		img_dict[row[1]] = row[2].split(',')
-		print(row[1] + ": " + str(img_dict[row[1]]))
 
 	# We should probably double check which tags are relevant or not on Slack
 	removeIrrelevantTags = ['1', 'Tags', 'Windows on Earth', '#WinEarthFavs', 'Astronaut Favs', 'Private', 'BUSpark', 'Christ Hadfield tweet', 
@@ -49,3 +42,7 @@ with open(EARTH_PHOTOS_DIRECTORY + 'tags.csv', 'r') as tags:
 
 	# A tuple in case we need it
 	data_tup = (ttl, TOTAL_TAGS, tag_dict, sorted_tags)
+
+	img_dict = get_img_dict(EARTH_PHOTOS_DIRECTORY)
+	for key in img_dict.keys():
+		print("[" + key + "]" + ": " + str(img_dict[key]))
