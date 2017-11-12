@@ -20,6 +20,14 @@ with open(EARTH_PHOTOS_DIRECTORY + 'tags.csv', 'r') as tags:
 				except KeyError:
 					tag_dict[tag] = 1
 
+with open(EARTH_PHOTOS_DIRECTORY + 'tags.csv', 'r') as tags:
+	reader = csv.reader(tags, delimiter=',')
+	tag_dict = {}
+	img_dict = {}
+	for row in reader:
+		img_dict[row[1]] = row[2].split(',')
+		print(row[1] + ": " + str(img_dict[row[1]]))
+
 	# We should probably double check which tags are relevant or not on Slack
 	removeIrrelevantTags = ['1', 'Tags', 'Windows on Earth', '#WinEarthFavs', 'Astronaut Favs', 'Private', 'BUSpark', 'Christ Hadfield tweet', 
 	'Scott Kelly tweet', 'Anousheh Ansari', 'Anousheh_All_Sun_Moon', 'Anousheh_Earth', 'Anousheh_Iran', 'Reid_Wiseman', 
@@ -33,11 +41,11 @@ with open(EARTH_PHOTOS_DIRECTORY + 'tags.csv', 'r') as tags:
 	sorted_tags = sorted(tag_dict, key=tag_dict.__getitem__, reverse=True)
 	ttl = 0
 	for k in sorted_tags:
-	    print("{} : {}".format(k, tag_dict[k]))
+	    # print("{} : {}".format(k, tag_dict[k]))
 	    ttl += tag_dict[k]
-	print("======================\nTotal tags: " + str(ttl))
+	# print("======================\nTotal tags: " + str(ttl))
 	TOTAL_TAGS = len(sorted_tags)
-	print("Total unique tags: " + str(TOTAL_TAGS))
+	# print("Total unique tags: " + str(TOTAL_TAGS))
 
 	# A tuple in case we need it
 	data_tup = (ttl, TOTAL_TAGS, tag_dict, sorted_tags)
