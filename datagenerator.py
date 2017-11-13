@@ -5,7 +5,8 @@ import os
 
 '''File whose purpose is to preprocess images and produce an even larger dictionary for use as training and test data.'''
 
-NUM_TRANSFORMED = 5 '''This is the number of transformed images for each in the original set'''
+NUM_TRANSFORMED = 5
+'''This is the number of transformed images for each in the original set'''
 
 datagen = ImageDataGenerator(
   rotation_range = 40,
