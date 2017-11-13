@@ -1,4 +1,4 @@
-from get_img_dict import get_img_dict
+from get_data import get_img_dict
 from keras.preprocessing.image import ImageDataGenerator, array_to_img, img_to_array, load_img
 from keras import backend as K
 import numpy as np
@@ -23,13 +23,13 @@ datagen = ImageDataGenerator(
 def transform_images(image_dict):
     '''Produce NUM_TRANSFORMED images that are transformations of the resized data set'''
     for key, tags  in image_dict.items():
-        img = load_img('../data/resized/{}'.format(key))
+        img = load_img('./data/resized/{}'.format(key))
         x = img_to_array(img)
         x = x.reshape((1, *x.shape))
 
         #Generate random transformations of image
         i=0
-        for batch in datagen.flow(x, batch_size=1, save_to_dir='../data/transformed',
+        for batch in datagen.flow(x, batch_size=1, save_to_dir='./data/transformed',
         save_prefix=key.replace(".jpg", ""), save_format='jpg'):
             i += 1
             if i > NUM_TRANSFORMED: #gen 50 images for this shiz
@@ -43,7 +43,7 @@ def transform_images(image_dict):
 def get_trans_dict(image_dict):
     '''Get a dictionary representing the tags for a filename key on the transformed images'''
     trans_dict = {}
-    translist = os.listdir("../data/transformed")
+    translist = os.listdir("./data/transformed")
     for filename, tags in image_dict.items():
         for transname in translist:
             if(filename[:-4] in transname[:-4]): #ignoring the .jpg check to see transformation is child of each parent
@@ -54,7 +54,7 @@ def get_trans_dict(image_dict):
 def shuffle_data():
     '''returns the indices for the 80% training and 20% validation sets'''
     np.random.seed(55)
-    xy  = get_img_dict("../data")
+    xy  = get_img_dict("./data")
     xyl = list(xy)
     K = int(.8 * len(xyl))
     np.random.shuffle(xyl)
@@ -75,11 +75,13 @@ def get_validation_set():
     train, test, imgdict = shuffle_data()
     return {x : imgdict[x] for x in test}
 
-
 if(__name__ == "__main__"):
-    os.system("rm ../data/transformed/*")
-    img_data = get_img_dict("../data")
+    
+    os.system("rm ./data/transformed/*")
+    img_data = get_img_dict("./data")
     #transform_images(img_data)
     #print(get_trans_dict(img_data))
     print(get_training_set())
     print(get_validation_set())
+    
+    # get_img_dict("./data/")

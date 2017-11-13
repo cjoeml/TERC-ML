@@ -7,19 +7,16 @@ from keras.optimizers import SGD, Adadelta, Adagrad
 from keras.utils import np_utils, generic_utils
 from keras.callbacks import EarlyStopping
 from sklearn.cross_validation import train_test_split
-from datagenerator import get_training_set, get_validation_set
+from get_data import get_data # Should probably make this in our repo
+
 import numpy as np
 
+X,Y = get_data()
 # X is the set of our inputs (images) with a size of (tentatively) 100 x 100 --> (n, width, height)
 ## ^ We would probably load images into an array
 # Y is our class label data
 
-#The below functions partition the set of images into disjoint training and validations sets.
-training_set = get_training_set()
-validation_set = get_validation_set()
-
-
-#x_train, x_test, y_train, y_test = train_test_split(X,Y,test_size =0.2)
+x_train, x_test, y_train, y_test = train_test_split(X,Y,test_size =0.2)
  # We don't need to do this if our test and training data is separate
 
 img_channels = 3	 # RGB
@@ -55,9 +52,6 @@ model.add(Activation('softmax')) # Should probably use this because we're doing 
 sgd = SGD(lr=0.01, decay=1e-6, momentum=0.9, nesterov=True)
 model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy']) # ty adam
 early_stopping = EarlyStopping(monitor='val_loss', patience=3)
-model.fit(x_train,y_train,nb_epoch=30,batch_size=32,show_accuracy=True, validation_data=(x_test,y_test), shuffle=True, callbacks=[early_stopping])
+model.fit(x_train,y_train,nb_epoch=30,batch_size=32,show_accuracy=True,validation_data=(x_test,y_test),shuffle=True, callbacks=[early_stopping])
 score = model.evaluate(x_test, y_test, verbose=0)
 out = model.predict(x_test)
-
-
-model.save_weights('first_try.h5')  # always save your weights after training or during training
