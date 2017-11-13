@@ -9,9 +9,10 @@ file directory structure:
 project/
     data/
         images
+            raw/
+            resized/
+            transformed/
         tags.csv
-    preprocessed_data/
-        preprocessed images produced by datagenerator function
     TERC_ML_REPO/
         extract_tags
         get_img_dict
