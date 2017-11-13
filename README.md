@@ -6,15 +6,12 @@ https://drive.google.com/drive/folders/0B_yZKABSVRd7fnJXOUpVVWdRSEpta1VXZlhWWlg1
 
 file directory structure:
 
-project/
-    data/
-        images
-            raw/
-            resized/
-            transformed/
-        tags.csv
-    TERC_ML_REPO/
-        extract_tags
-        get_img_dict
-        trials
-        datagenerator
+ * [terc-ml](./TERC-ML)
+     * [data](./data)
+        * [images](./images)
+            * [raw](./raw)
+            * [resized](./resized)
+            * [transformed](./transformed)
+        * [tags.csv](./csv)
+
+ 
