@@ -7,35 +7,37 @@ from keras.optimizers import SGD, Adadelta, Adagrad
 from keras.utils import np_utils, generic_utils
 from keras.callbacks import EarlyStopping
 from sklearn.cross_validation import train_test_split
-from get_data import get_data # Should probably make this in our repo
+from get_data import get_data  # Should probably make this in our repo
 
 import numpy as np
+
 datagen = ImageDataGenerator(
-  rotation_range = 40,
-  width_shift_range = .2,
-  height_shift_range = .2,
-  rescale = 1/255,
-  shear_range = .2,
-  zoom_range = .2,
-  horizontal_flip = True,
-  fill_mode = 'nearest'
+    rotation_range=40,
+    width_shift_range=.2,
+    height_shift_range=.2,
+    rescale=1 / 255,
+    shear_range=.2,
+    zoom_range=.2,
+    horizontal_flip=True,
+    fill_mode='nearest'
 )
 
 # X is the set of our inputs (images) with a size of (tentatively) 100 x 100 --> (n, width, height)
-## ^ We would probably load images into an array
+# ^ We would probably load images into an array
 # Y is our class label data
 
 #x_train, x_test, y_train, y_test = train_test_split(X,Y,test_size =0.2)
- # We don't need to do this if our test and training data is separate
+# We don't need to do this if our test and training data is separate
 
-img_channels = 3	 # RGB
-img_rows     = 100
-img_cols     = 100
-nb_classes   = 5     # Should change this to how many classes we have
+img_channels = 3   # RGB  
+img_rows = 100
+img_cols = 100
+nb_classes = 5     # Should change this to how many classes we have
 
 model = Sequential()
 
-model.add(Convolution2D(32, 3, 3, border_mode='same',input_shape=(img_channels, img_rows, img_cols)))
+model.add(Convolution2D(32, 3, 3, border_mode='same',
+                        input_shape=(img_channels, img_rows, img_cols)))
 model.add(Activation('relu'))
 model.add(Convolution2D(32, 3, 3))
 model.add(Activation('relu'))
@@ -54,26 +56,28 @@ model.add(Dense(512))
 model.add(Activation('relu'))
 model.add(Dropout(0.5))
 model.add(Dense(nb_classes))
-model.add(Activation('softmax')) # Should probably use this because we're doing multiclass stuff
+# Should probably use this because we're doing multiclass stuff
+model.add(Activation('softmax'))
 
 
 # let's train the model using SGD + momentum
 sgd = SGD(lr=0.01, decay=1e-6, momentum=0.9, nesterov=True)
-model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy']) # ty adam
+model.compile(loss='categorical_crossentropy',
+              optimizer='adam', metrics=['accuracy'])  # ty adam
 '''early_stopping = EarlyStopping(monitor='val_loss', patience=3)
 model.fit(x_train,y_train,nb_epoch=30,batch_size=32,show_accuracy=True,validation_data=(x_test,y_test),shuffle=True, callbacks=[early_stopping])
 score = model.evaluate(x_test, y_test, verbose=0)
 out = model.predict(x_test)
 '''
 train_datagen = ImageDataGenerator(
-  rotation_range = 40,
-  width_shift_range = .2,
-  height_shift_range = .2,
-  rescale = 1/255,
-  shear_range = .2,
-  zoom_range = .2,
-  horizontal_flip = True,
-  fill_mode = 'nearest'
+    rotation_range=40,
+    width_shift_range=.2,
+    height_shift_range=.2,
+    rescale=1 / 255,
+    shear_range=.2,
+    zoom_range=.2,
+    horizontal_flip=True,
+    fill_mode='nearest'
 )
 train_datagen = ImageDataGenerator(
     rescale=1. / 255,
@@ -84,28 +88,29 @@ train_datagen = ImageDataGenerator(
 batch_size = 1
 # this is the augmentation configuration we will use for testing:
 # only rescaling
-test_datagen = ImageDataGenerator(rescale=1./255)
+test_datagen = ImageDataGenerator(rescale=1. / 255)
 
 # this is a generator that will read pictures found in
 # subfolers of 'data/train', and indefinitely generate
 # batches of augmented image data
 train_generator = train_datagen.flow_from_directory(
-        'data/train',  # this is the target directory
-        target_size=(150, 150),  # all images will be resized to 150x150
-        batch_size=batch_size,
-        class_mode='categorical')  # since we use binary_crossentropy loss, we need binary labels
+    'data/train',  # this is the target directory
+    target_size=(150, 150),  # all images will be resized to 150x150
+    batch_size=batch_size,
+    class_mode='categorical')  # since we use binary_crossentropy loss, we need binary labels
 
 validation_generator = test_datagen.flow_from_directory(
-        'data/test',
-        target_size=(150, 150),
-        batch_size=batch_size,
-        class_mode='categorical')
+    'data/test',
+    target_size=(150, 150),
+    batch_size=batch_size,
+    class_mode='categorical')
 
 model.fit_generator(
-        train_generator,
-        steps_per_epoch=2000 // batch_size,
-        epochs=50,
-        validation_data=validation_generator,
-        validation_steps=800 // batch_size)
+    train_generator,
+    steps_per_epoch=2000 // batch_size,
+    epochs=50,
+    validation_data=validation_generator,
+    validation_steps=800 // batch_size)
 
-model.save_weights('first_try.h5')  # always save your weights after training or during training
+# always save your weights after training or during training
+model.save_weights('first_try.h5')

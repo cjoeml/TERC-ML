@@ -5,7 +5,7 @@ import pandas as pd
 
 def extract_tags(directories):
 	for d in directories:
-		filenames_and_tags = ["Filename","Tags"]
+		filenames_and_tags = [["Filename","Tags"]]
 		for subdir, dirs, files in os.walk(d):
 			for f in files:
 					if re.search(".jpg",f):
@@ -26,7 +26,7 @@ def extract_tags(directories):
 
 						filenames_and_tags.append([f,tags])
 
-		pd.DataFrame(filenames_and_tags).to_csv(d + "tags.csv")
+		pd.DataFrame(filenames_and_tags).to_csv(d + "/tags.csv")
 
 if __name__ == "__main__":
-    extract_tags(["../data/"])
+    extract_tags(["../data/images/raw"])
