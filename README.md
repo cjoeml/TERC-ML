@@ -9,12 +9,14 @@ https://drive.google.com/a/bu.edu/file/d/1kuMOgCWi4d8lYC_Qq6fZkMT23iQqG7iz/view?
 
 file directory structure:
 
+All source code is run from the root project folder
+
  * [terc-ml](./TERC-ML)
      * [data](./data)
-        * [images](./images)
-            * [raw](./raw)
-            * [resized](./resized)
-            * [transformed](./transformed)
+        * [raw](./raw)
+        * [resized](./resized)
+        * [transformed](./transformed)
         * [tags.csv](./csv)
+     * [deprecated](./deprecated)
 
  
