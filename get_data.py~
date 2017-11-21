@@ -129,7 +129,7 @@ def format_data(img_dimensions, img_depth):
     X_val = X_val.astype('float32')
     X_train /= 255
     X_val /= 255
-    return (X_train,X_val,Y_train,Y_val,input_shape) 
+    return (X_train,X_test,Y_train,Y_test,input_shape) 
 
 def partition_image_data(directory,img_dimensions,img_depth, opt=""):
     """ Takes images and puts them in the format keras
