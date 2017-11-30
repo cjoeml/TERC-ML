@@ -39,8 +39,8 @@ def image_preprocessing():
 		os.system("rm ./data/transformed/*")
 	# generate X and Y, in the format keras needs for the model
 	# and return
-	return io.partition_image_data(resized_images_folder,(150,150),3)
-	#return io.format_data((150,150),3)
+	#return io.partition_image_data(resized_images_folder,(150,150),3)
+	return io.format_data((150,150),3)
 
 def main():
 	X_train,X_test,Y_train,Y_test,input_shape = image_preprocessing()
@@ -62,22 +62,30 @@ def main():
 	model.add(MaxPooling2D(pool_size=(2, 2)))
 	model.add(Dropout(0.25))
 
+	model.add(Conv2D(128, (3, 3), padding="same"))
+	model.add(Activation('relu'))
+	model.add(Conv2D(128, (3, 3), padding = "same"))
+	model.add(Activation('relu'))
+	model.add(MaxPooling2D(pool_size=(2, 2)))
+	model.add(Dropout(0.25))
+
+
 	model.add(Flatten())
-	model.add(Dense(512))
+	model.add(Dense(1024))
 	model.add(Activation('relu'))
 	model.add(Dropout(0.5))
 	model.add(Dense(nb_classes))
-	model.add(Activation('softmax')) # Should probably use this because we're doing multiclass stuff
+	model.add(Activation('sigmoid')) # Should probably use this because we're doing multiclass stuff
 
 	# let's train the model using SGD + momentum
-	sgd = SGD(lr=0.1, decay=1e-8, momentum=0.9, nesterov=True)
-	model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy']) # ty adam
+	sgd = SGD(lr=0.01, decay=1e-9, momentum=0.7, nesterov=True)
+	model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['categorical_accuracy']) # ty adam
 	early_stopping = EarlyStopping(monitor='val_loss', patience=3)
-	model.fit(X_train,Y_train, epochs=15,batch_size=32, validation_data=(X_test,Y_test),shuffle=True, callbacks=[early_stopping])
+	model.fit(X_train,Y_train, epochs=10,batch_size=64, validation_data=(X_test,Y_test),shuffle=True, callbacks=[early_stopping])
 	score = model.evaluate(X_test, Y_test, verbose=1)
 	out = model.predict(X_test)
-	model.save_weights('first_try.h5')  # always save your weights after training or during training
-
+	#model.save_weights('first_try.h5')  # always save your weights after training or during training
+	#TODO: Save weights
 
 
 if __name__ == "__main__":
