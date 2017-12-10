@@ -1,0 +1,3 @@
+#!/bin/bash -l
+
+qsub -P "cs542" -m e run.sh
