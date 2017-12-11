@@ -22,9 +22,14 @@ transformed_images_folder = images_folder + "/transformed"
 
 resize_dimensions = (150,150)
 
-valid_labels = ["Aurora","Cupola","Day","Dock UnDock","Moon",
-            "Movie","Night","Stars","ISS Structure","Sunrise Sunset","Volcano","Inside ISS"]
+# valid_labels = ["Aurora","Cupola","Day","Dock UnDock","Moon",
+            # "Movie","Night","Stars","ISS Structure","Sunrise Sunset","Volcano","Inside ISS"]
+valid_labels = ["Day", "ISS Structure", "Moon", "Sunrise Sunset", "Harvey", "Dock Undock", "Deployer", "Cupola",
+            "Night", "Clouds", "Solar Panels", "Hurricane", "Aurora", "Solar Eclipse", "Inside ISS", "Sun", "Volcano",
+            "Deployed satellite", "San Francisco"]
 
+def get_valid_labels():
+    return valid_labels
 
 def extract_tags(read_directory, write_directory, prefix=""):
     """ Extracts image tags embedded in said images
@@ -43,10 +48,20 @@ def extract_tags(read_directory, write_directory, prefix=""):
                     tags = ""
                     # if the image has just a single tag
                     if type(keywords) == type(bytes()):
-                        tags += str(keywords, encoding="utf-8")
+                        # tags += str(keywords, encoding="utf-8")
+                        tag = str(keywords, encoding="utf-8")
+                        if tag == "Harvey":
+                            tags += "Hurricane"
+                        else:
+                            tags += tag
                     else:
                         for k in keywords:
-                            tags += str(k, encoding="utf-8")
+                            # tags += str(k, encoding="utf-8")
+                            tag = str(k, encoding="utf-8")
+                            if tag == "Harvey":
+                                tags += "Hurricane"
+                            else:
+                                tags += tag
                             # don't put a comma on the end
                             if k != keywords[len(keywords)-1]:
                                 tags += ","
