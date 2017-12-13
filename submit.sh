@@ -1,3 +1,3 @@
 #!/bin/bash -l
 
-qsub run.sh
+qsub bottleneck_run.sh

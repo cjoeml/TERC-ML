@@ -1,6 +1,10 @@
 # system imports
 import os
-
+# graphing imports
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+from keras.utils import plot_model
 # keras imports
 from keras.callbacks import EarlyStopping
 from keras import metrics
@@ -10,21 +14,25 @@ from keras.layers.core import Dense
 from keras.layers import GlobalAveragePooling2D
 from keras.optimizers import SGD
 from keras import backend as K
-
-# graphing imports
-import matplotlib.pyplot as plt
-
 # numpy imports
 import numpy as np
-
 # imports from our repo
 import get_data as io
+# ignore deprecation warnings
+import warnings
+warnings.filterwarnings("ignore")
+
 
 # Global Constants
 IMAGES_FOLDER = "./data"
 RAW_IMAGES_LOCATION = IMAGES_FOLDER + "/raw"
 TRANSFORMED_IMAGES_LOCATION = IMAGES_FOLDER + "/transformed"
 RESIZE_DIMENSIONS = (224, 224)
+RESULT_PREFIX = "bestmodel_5transform_"
+
+# Tweak these
+OUTPUT_LAYER_EPOCHS = 10
+COMPLETE_MODEL_EPOCHS = 10
 
 
 def image_preprocessing():
@@ -49,8 +57,7 @@ def image_preprocessing():
     if(len(os.listdir(TRANSFORMED_IMAGES_LOCATION + "/train")) +
             len(os.listdir(TRANSFORMED_IMAGES_LOCATION + "/validation")) > 0):
         print("Clearing out previously transformed images...")
-        os.system("""rm ./data/transformed/train/*
-            ./data/transformed/validation/*""")
+        os.system("rm ./data/transformed/train/* ./data/transformed/validation/*")
         print("Done!\n")
 
     # generate X and Y, in the format keras needs for the model
@@ -68,38 +75,26 @@ def individual_accuracy(y_true, y_pred):
     '''Returns array containing the accuracy for each tag'''
     return np.equal(K.get_value(y_true), K.get_value(K.round(y_pred)), axis=1)
 
-def single_class_accuracy(interesting_class_id):
-    def fn(y_true, y_pred):
-        class_id_true = K.argmax(y_true, axis=-1)
-        class_id_preds = K.argmax(y_pred, axis=-1)
-        # Replace class_id_preds with class_id_true for recall here
-        accuracy_mask = K.cast(K.equal(class_id_preds, interesting_class_id), 'int32')
-        class_acc_tensor = K.cast(K.equal(class_id_true, class_id_preds), 'int32') * accuracy_mask
-        class_acc = K.sum(class_acc_tensor) / K.maximum(K.sum(accuracy_mask), 1)
-        return class_acc
-    return fn
 
 def binary_accuracy_with_threshold(y_true, y_pred, threshold=.6):
     y_pred = K.cast(K.greater(y_pred, threshold), K.floatx())
     return K.mean(K.equal(y_true, y_pred))
 
 
-def create_graphs(epoch_history, prefix):
+def create_graphs(epoch_history, prefix, model):
+
+    plot_model(model, to_file=prefix + 'model.png')
+
     # plot history for accuracy
     plt.plot(epoch_history.history['binary_accuracy'])
     plt.plot(epoch_history.history['val_binary_accuracy'])
     plt.title('Model Accuracy')
     plt.ylabel('Accuracy')
     plt.xlabel('Epoch')
-    plt.legend(['Training Set', 'Validation Set'], loc='upper left')
-    plt.savefig(prefix + 'volcanoaccuracy.png')
-    plt.plot(epoch_history.history['volcano_accuracy'])
-    plt.plot(epoch_history.history['val_volcano_accuracy'])
-    plt.title('Model Accuracy')
-    plt.ylabel('Accuracy')
-    plt.xlabel('Epoch')
-    plt.legend(['Training Set', 'Validation Set'], loc='upper left')
+    plt.legend(['Training Set', 'Validation Set'], loc='bottom right')
     plt.savefig(prefix + 'accuracy.png')
+    
+    plt.clf()
 
     # summarize history for loss
     plt.plot(epoch_history.history['loss'])
@@ -107,23 +102,28 @@ def create_graphs(epoch_history, prefix):
     plt.title('Model Loss')
     plt.ylabel('Loss')
     plt.xlabel('Epoch')
-    plt.legend(['Training Set', 'Validation Set'], loc='upper left')
+    plt.legend(['Training Set', 'Validation Set'], loc='top right')
     plt.savefig(prefix + 'loss.png')
 
 
 def main():
+    print("Beginning Model Training...\n")
     X_train, X_test, Y_train, Y_test, input_shape = image_preprocessing()
 
     nb_classes = len(Y_test[0])
-
+    
+    early_stopping = EarlyStopping(monitor='val_loss', patience=3)
     base_model = ResNet50(weights='imagenet', include_top=False)
+    
+    #for i, layer in enumerate(base_model.layers):
+    #    print(i, layer.name)
 
     # add a global spatial average pooling layer
     x = base_model.output
     x = GlobalAveragePooling2D()(x)
     # let's add a fully-connected layer
     x = Dense(1024, activation='relu')(x)
-    # and a logistic layer -- let's say we have 200 classes
+    # and a logistic layer
     predictions = Dense(nb_classes, activation='sigmoid')(x)
 
     print("Obtaining base model...")
@@ -141,41 +141,44 @@ def main():
                   metrics.binary_accuracy, binary_accuracy_with_threshold])
     print("Done!\n")
 
+    print("Training output model layers...")
     # train our layers
-    model.fit(X_train, Y_train, epochs=3, batch_size=64,
+    model.fit(X_train, Y_train, epochs=OUTPUT_LAYER_EPOCHS, batch_size=64,
               validation_data=(X_test, Y_test), shuffle=True, verbose=2)
-
-    # freeze first 4 layers from the Resnet Model
-    for layer in model.layers[:142]:
+    print("Done!\n")
+    # freeze first 4 layers from the Resnet Model (142 -> stage 5)
+    for layer in model.layers[:80]:
         layer.trainable = False
 
     # Just train the last layer with our output layers
-    for layer in model.layers[142:]:
+    for layer in model.layers[80:]:
         layer.trainable = True
 
     # we need to recompile the model for these modifications to take effect
     # we use SGD with a low learning rate
 
     print("Recompiling model...")
-    model.compile(optimizer=SGD(lr=0.0001, momentum=0.9),
+    # SGD(lr=0.0001, momentum=0.9)
+    model.compile(optimizer='adam',
                   loss='binary_crossentropy', metrics=[
                   metrics.binary_accuracy, binary_accuracy_with_threshold])
     print("Done!\n")
 
+    print("Training all model layers...")
     early_stopping = EarlyStopping(monitor='val_loss', patience=3)
-    epoch_history = model.fit(X_train, Y_train, epochs=10,
-                              batch_size=64, validation_data=(
+    epoch_history = model.fit(X_train, Y_train, epochs=COMPLETE_MODEL_EPOCHS,
+                            batch_size=64, validation_data=(
                                   X_test, Y_test), shuffle=True,
                               callbacks=[early_stopping])
-
+    print("Done!\n")
     print("Saving weights...")
-    model.save_weights('baseline_bottleneck_weights.h5')
+    model.save_weights(RESULT_PREFIX + 'bottleneck_weights.h5')
     print("Done!\n")
 
     print("Creating graphs...")
-    create_graphs(epoch_history, "")
+    create_graphs(epoch_history, RESULT_PREFIX, model)
     print("Done!\n")
-
+    
 
 if __name__ == "__main__":
     main()

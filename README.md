@@ -1,22 +1,29 @@
-# TERC-ML
+# TERC-ML - Team 4
 
-Location of our data set:
+Image Sets and Tags:
 
-https://drive.google.com/drive/folders/0B_yZKABSVRd7fnJXOUpVVWdRSEpta1VXZlhWWlg1X2ZNLUZ5eTYzNUpNTkRxajRaQnJzUTQ
+https://spark-xlab.slack.com/archives/C70DFLJ7M/p1510588534000126
+https://spark-xlab.slack.com/archives/C70DFLJ7M/p1510588582000116
+https://spark-xlab.slack.com/archives/C70DFLJ7M/p1511291170000494
 
-Resized Images (150x150):
-https://drive.google.com/a/bu.edu/file/d/1kuMOgCWi4d8lYC_Qq6fZkMT23iQqG7iz/view?usp=sharing
 
-file directory structure:
+Testing was done using the submit.sh bash script on scc.bu.edu. Place the raw images under ./data/raw and either use the script or run
+bottleneck_model.py. The weights from our model are located in the final results folder.
 
-All source code is run from the root project folder
 
- * [terc-ml](./TERC-ML)
-     * [data](./data)
-        * [raw](./raw)
-        * [resized](./resized)
-        * [transformed](./transformed)
-        * [tags.csv](./csv)
-     * [deprecated](./deprecated)
+File descriptions:
 
- 
+bottleneck_model.py - where the model is
+datagenerator.py - code to transform images
+get_data.py - code for extracting and formating tags
+get_img_dict - file containing a function for mapping image names to their tags
+BU10000Set.csv - file containing tags for all images
+
+Folder Descriptions:
+
+logs -  output from running the model on the SCC
+tests - collecton of runs using different parameters and model architectures
+final results - contains the output from our best run
+initial results - contains the output of our initial model
+deprecated - older, deprecated code
+

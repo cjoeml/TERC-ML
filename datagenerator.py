@@ -15,29 +15,21 @@ train_folder = raw_images_folder + "/train"
 test_folder = raw_images_folder + "/validation"
 transformed_images_folder = images_folder + "/transformed"
 
-NUM_TRANSFORMED = 5
+NUM_TRANSFORMED = 1
 TARGET_SIZE = (224,224)
+AUGMENT_IMAGES = False
 
 '''This is the number of transformed images for each in the original set'''
 
-traingen = ImageDataGenerator(
-  rotation_range = 360,
-  width_shift_range = .3,
-  height_shift_range = .3,
-  rescale = 1/255,
-  shear_range = .05,
-  vertical_flip = True,
-  zoom_range = .3,
-  horizontal_flip = True,
-  fill_mode = 'nearest',
-  #featurewise_center = True,
-  #featurewise_std_normalization = True
-)
-testgen = ImageDataGenerator(
-  rescale = 1/255,
-  #featurewise_std_normalization = True,
-  #featurewise_center = True
-)
+if AUGMENT_IMAGES:
+    traingen = ImageDataGenerator(rescale=1 / 255, rotation_range=360, width_shift_range=.3, height_shift_range=.3,
+                                  shear_range=.05, vertical_flip=True, zoom_range=.3, horizontal_flip=True, fill_mode='nearest')
+
+else:
+    traingen = ImageDataGenerator(rescale=1 / 255)
+
+
+testgen = ImageDataGenerator(rescale=1 / 255)
 
 
 

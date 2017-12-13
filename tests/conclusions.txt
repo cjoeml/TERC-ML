@@ -1,0 +1,9 @@
+Hi guys,
+
+    After our baseline, I got the extra tags inputed into the machine, and our accuracy wasn't affected much at all (See tag_threshold). After that, I went to do the next easiest thing, which seems
+to be playing with epochs (check out 2xOutput, TenOutput, and TwentyOutput). Initially I doubled the number of epochs for the output layer and the overall model, but it seemed just increasing
+the number of epochs for the output layers made a big difference! Looking at the data, I think we should settle for ten epochs on the initial output layer training. This was all done without
+any augmentations. Looks like our best was .9985 for validation with a .6 threshold.
+
+
+- Tony 

@@ -33,7 +33,6 @@ def get_valid_labels():
 
 def extract_tags(read_directory, write_directory, prefix=""):
     """ Extracts image tags embedded in said images
-
     Arguments:
     read_directory -- directory to read the images from
     write_directory -- directory to write the tags.csv file to
@@ -55,6 +54,7 @@ def extract_tags(read_directory, write_directory, prefix=""):
                         else:
                             tags += tag
                     else:
+						# if the image has many tags
                         for k in keywords:
                             # tags += str(k, encoding="utf-8")
                             tag = str(k, encoding="utf-8")
@@ -65,8 +65,10 @@ def extract_tags(read_directory, write_directory, prefix=""):
                             # don't put a comma on the end
                             if k != keywords[len(keywords)-1]:
                                 tags += ","
+                    filenames_and_tags.append([f,tags])
 
     pd.DataFrame(filenames_and_tags).to_csv(write_directory + "/" + prefix + "tags.csv")
+
 
 
 def resize_images(read_directory,write_directory,dimensions):
@@ -98,12 +100,16 @@ def format_data(img_dimensions, img_depth):
     '''
     width = img_dimensions[0]
     height = img_dimensions[1]
+    
     vim_dict = get_img_dict(images_folder + "/", "val_tags.csv")
     trim_dict = get_img_dict(images_folder + "/", "train_tags.csv")
+    
     tr = get_training_set(trim_dict)
     val = get_validation_set(vim_dict)
+    
     n_train = len(tr)
     n_val = len(val)
+    
     # different keras backends expect different orders
     if keras_backend.image_data_format() == "channels_first":
         input_shape = (img_depth,width,height)
@@ -113,9 +119,11 @@ def format_data(img_dimensions, img_depth):
         input_shape = (width,height,img_depth)
         X_train = np.zeros((n_train, width,height,img_depth))
         X_val = np.zeros((n_val, width, height, img_depth))
+    
     # labels
     Y_train = np.zeros((n_train, len(valid_labels)))
     Y_val = np.zeros((n_val, len(valid_labels)))
+    
     sample_index = 0
     for filename, tags in tr.items():
         X_train[sample_index] = skimi.imread(transformed_images_folder + "/train/" + filename)
